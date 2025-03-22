@@ -1,4 +1,4 @@
-name: Docker Compose CI
+name: Docker Compose CI/CD
 
 on:
   push:
@@ -21,8 +21,8 @@ jobs:
           script: |
             cd /${{ secrets.SSH_USER }}
             rm -rf wishlist
-            git clone git@github.com:${{ github.repository }} wishlist
+            git clone git@github.com:${{ github.repository }}.git wishlist
             cd wishlist
             echo "${{ secrets.ENV_FILE_PROD }}" > prod.env
             docker compose -f docker-compose.prod.yml down
-            docker compose up -f docker-compose.prod.yml -d --build
+            docker compose -f docker-compose.prod.yml up -d --build

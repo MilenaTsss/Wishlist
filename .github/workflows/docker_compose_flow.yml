@@ -1,4 +1,4 @@
-name: Docker Compose CI
+name: Docker Compose TEST CI
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Run linters and formatters
         run: |
-          ruff . --output-format=github
+          ruff check . --output-format=github
           isort . --check --diff
           black . --check --diff
 
