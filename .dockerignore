@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+.env
+*.env
+
+venv/
+
+*.log
+logs/
+
+.git
+.gitignore
+
+.idea/
+
+.DS_Store
+
+*.http
+Dockerfile
+docker-compose.*yml
+*.toml
