@@ -11,3 +11,4 @@ ruff==0.9.10
 black==25.1.0
 whitenoise==6.9.0
 drf-yasg==1.21.10
+coverage==7.7.1

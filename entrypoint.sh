@@ -1,5 +1,14 @@
 #!/bin/sh
 
+echo "Checking for unapplied model changes..."
+python manage.py makemigrations --check --dry-run
+if [ $? -ne 0 ]; then
+  echo "ERROR: There are model changes that are not reflected in migrations!"
+  exit 1
+fi
+
+echo "No missing migrations found."
+
 echo "Applying migrations..."
 python manage.py migrate
 
@@ -19,7 +28,6 @@ EOF
 
 
 echo "Starting Gunicorn..."
-#gunicorn --bind 0.0.0.0:8000 Wishlist.wsgi:application
 gunicorn --bind 0.0.0.0:8000 Wishlist.wsgi:application \
   --access-logfile - \
   --error-logfile - \

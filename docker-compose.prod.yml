@@ -11,8 +11,6 @@ services:
         condition: service_healthy
     env_file:
       - prod.env
-#    volumes:
-#      - ./logs:/backend_app/logs
     logging:
       driver: "json-file"
       options:
