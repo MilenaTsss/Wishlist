@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from wishes.models import Wish
 from wishes.serializers import WishSerializer
 
+
 @permission_classes([IsAuthenticated])
 class WishViewSet(viewsets.ModelViewSet):
     serializer_class = WishSerializer

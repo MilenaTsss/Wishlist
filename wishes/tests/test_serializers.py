@@ -1,9 +1,11 @@
 import pytest
-from wishes.models import Wish
-from wishes.serializers import WishSerializer
 from django.contrib.auth import get_user_model
 
+from wishes.models import Wish
+from wishes.serializers import WishSerializer
+
 User = get_user_model()
+
 
 @pytest.mark.django_db
 def test_wish_serializer_valid_data():
@@ -14,7 +16,7 @@ def test_wish_serializer_valid_data():
         "url": "https://example.com/switch",
         "price": "299.99",
         "is_reserved": False,
-        "is_active": True
+        "is_active": True,
     }
 
     serializer = WishSerializer(data=data)
@@ -28,10 +30,7 @@ def test_wish_serializer_valid_data():
 
 @pytest.mark.django_db
 def test_wish_serializer_missing_required_field():
-    data = {
-        "description": "Missing title",
-        "price": "100.00"
-    }
+    data = {"description": "Missing title", "price": "100.00"}
 
     serializer = WishSerializer(data=data)
     assert not serializer.is_valid()

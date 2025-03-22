@@ -1,9 +1,11 @@
 import pytest
-from rest_framework.test import APIClient
-from wishes.models import Wish
 from django.contrib.auth import get_user_model
+from rest_framework.test import APIClient
+
+from wishes.models import Wish
 
 User = get_user_model()
+
 
 @pytest.fixture
 def user():
@@ -28,7 +30,7 @@ def test_create_wish(auth_client):
         "title": "New Camera",
         "description": "Want for travel",
         "price": "299.99",
-        "url": "https://example.com/camera"
+        "url": "https://example.com/camera",
     }
     response = auth_client.post("/api/wishes/", data)
     assert response.status_code == 201
@@ -58,7 +60,7 @@ def test_update_wish_put(auth_client, wish):
         "price": "150.00",
         "url": wish.url,
         "is_reserved": wish.is_reserved,
-        "is_active": wish.is_active
+        "is_active": wish.is_active,
     }
     response = auth_client.put(f"/api/wishes/{wish.id}/", data)
     assert response.status_code == 200

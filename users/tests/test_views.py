@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth.models import User
-from rest_framework.test import APIClient
 from rest_framework import status
+from rest_framework.test import APIClient
 
 
 @pytest.mark.django_db
@@ -12,7 +12,7 @@ def test_register_view_success():
         "email": "new@example.com",
         "password": "testpass123",
         "first_name": "New",
-        "last_name": "User"
+        "last_name": "User",
     }
 
     response = client.post("/api/register/", data)

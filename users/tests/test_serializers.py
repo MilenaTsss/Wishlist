@@ -1,10 +1,7 @@
 import pytest
 from django.contrib.auth.models import User
-from users.serializers import (
-    RegistrationSerializer,
-    UserSerializer,
-    UpdateUserSerializer
-)
+
+from users.serializers import RegistrationSerializer, UpdateUserSerializer, UserSerializer
 
 
 @pytest.mark.django_db
@@ -14,7 +11,7 @@ def test_registration_serializer_creates_user():
         "email": "test@example.com",
         "password": "strongpassword123",
         "first_name": "Test",
-        "last_name": "User"
+        "last_name": "User",
     }
     serializer = RegistrationSerializer(data=data)
     assert serializer.is_valid()
@@ -38,11 +35,7 @@ def test_registration_serializer_missing_fields():
 @pytest.mark.django_db
 def test_user_serializer_output():
     user = User.objects.create_user(
-        username="john",
-        email="john@example.com",
-        password="pass1234",
-        first_name="John",
-        last_name="Doe"
+        username="john", email="john@example.com", password="pass1234", first_name="John", last_name="Doe"
     )
     serializer = UserSerializer(user)
     data = serializer.data
@@ -55,11 +48,7 @@ def test_user_serializer_output():
 @pytest.mark.django_db
 def test_update_user_serializer():
     user = User.objects.create_user(
-        username="jane",
-        email="jane@example.com",
-        password="pass1234",
-        first_name="Old",
-        last_name="Name"
+        username="jane", email="jane@example.com", password="pass1234", first_name="Old", last_name="Name"
     )
     data = {"first_name": "New", "last_name": "User"}
     serializer = UpdateUserSerializer(user, data=data, partial=True)

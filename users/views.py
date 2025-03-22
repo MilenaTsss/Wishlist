@@ -1,7 +1,7 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.decorators import permission_classes
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
@@ -18,10 +18,7 @@ class UserAccountView(RetrieveUpdateDestroyAPIView):
 
     serializer_class = UserSerializer
 
-    @swagger_auto_schema(
-        operation_summary="Получение профиля текущего пользователя",
-        responses={200: UserSerializer()}
-    )
+    @swagger_auto_schema(operation_summary="Получение профиля текущего пользователя", responses={200: UserSerializer()})
     def get_object(self):
         """Retrieve the current user's profile"""
 
@@ -30,7 +27,7 @@ class UserAccountView(RetrieveUpdateDestroyAPIView):
     @swagger_auto_schema(
         operation_summary="Обновление профиля пользователя",
         request_body=UpdateUserSerializer,
-        responses={200: UserSerializer(), 400: 'Bad Request'}
+        responses={200: UserSerializer(), 400: 'Bad Request'},
     )
     def patch(self, request, *args, **kwargs):
         """Edit profile (first_name, last_name)"""
@@ -44,11 +41,7 @@ class UserAccountView(RetrieveUpdateDestroyAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-    @swagger_auto_schema(
-        operation_summary="Деактивация аккаунта пользователя",
-        responses={204: 'No Content'}
-    )
+    @swagger_auto_schema(operation_summary="Деактивация аккаунта пользователя", responses={204: 'No Content'})
     def delete(self, request, *args, **kwargs):
         """Deactivate account"""
 
