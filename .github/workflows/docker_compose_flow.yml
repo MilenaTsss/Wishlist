@@ -1,0 +1,57 @@
+name: Docker Compose CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-run-docker-compose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install linters
+        run: |
+          pip install black isort ruff
+
+      - name: Run linters and formatters
+        run: |
+          ruff . --output-format=github
+          isort . --check --diff
+          black . --check --diff
+
+      - name: Create .env for app
+        run: |
+          echo "${{ secrets.ENV_FILE_TEST }}" > .env
+
+      - name: Run Docker Compose
+        run: |
+          # Build and run the containers in detached mode
+          docker compose up --build -d
+
+      - name: Wait for containers
+        run: sleep 30
+
+      - name: Check for missing migrations
+        run: docker exec django_backend_wishlist python manage.py makemigrations --check --dry-run
+
+      - name: Run Tests
+        run: docker exec django_backend_wishlist pytest -v
+
+      - name: Show logs if tests fail
+        if: failure()
+        run: docker logs django_backend_wishlist
+
+      - name: Tear down Docker Compose
+        if: always()
+        run: |
+          # Stop and remove containers, networks, and volumes created by `docker-compose up`
+          docker compose down -v
