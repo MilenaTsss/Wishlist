@@ -44,7 +44,7 @@ jobs:
         run: docker exec django_backend_wishlist python manage.py makemigrations --check --dry-run
 
       - name: Run Tests
-        run: docker exec django_backend_wishlist pytest -v
+        run: docker exec -e DJANGO_SETTINGS_MODULE=Wishlist.settings django_backend_wishlist pytest -v
 
       - name: Show logs if tests fail
         if: failure()
