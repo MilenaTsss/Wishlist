@@ -23,7 +23,6 @@ jobs:
             rm -rf wishlist
             git clone git@github.com:${{ github.repository }}.git wishlist
             cd wishlist
-            docker-compose down
             echo "${{ secrets.ENV_FILE_PROD }}" > prod.env
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d --build

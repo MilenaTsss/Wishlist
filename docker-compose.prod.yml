@@ -14,7 +14,7 @@ services:
     networks:
       - wishlist-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/metrics" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health/" ]
       interval: 5s
       timeout: 3s
       retries: 5

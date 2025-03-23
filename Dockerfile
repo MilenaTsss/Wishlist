@@ -33,7 +33,7 @@ EXPOSE 8000
 # Run Django’s server after applying migrations
 CMD ["sh", "-c", "echo 'Applying migrations...'; python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
 
-# --- Stage 3: Production (Gunicorn + Nginx)  ---
+# --- Stage 3: Production (Gunicorn)  ---
 FROM base AS production
 
 # Copy the Django project to the container
@@ -45,5 +45,4 @@ RUN chmod +x /backend_app/entrypoint.sh
 EXPOSE 8000
 
 # Migrate database, Collect static files for admin panel and rest framework, Run Django’s server using gunicorn and configure logging
-#CMD ["sh", "-c", "echo 'Applying migrations...'; python manage.py migrate && gunicorn --bind 0.0.0.0:8000 Wishlist.wsgi:application --access-logfile - --error-logfile - --access-logformat '{\"time\": \"%(t)s\", \"status\": %(s)s, \"method\": \"%(m)s\", \"url\": \"%(U)s\", \"size\": %(b)s, \"ip\": \"%(h)s\", \"user_agent\": \"%(a)s\"}'"]
 CMD ["sh", "/backend_app/entrypoint.sh"]
