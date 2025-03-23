@@ -2,7 +2,7 @@ services:
   backend:
     build:
       target: production
-    container_name: django_backend_wishlist
+    container_name: wishlist-django
     working_dir: /backend_app
     ports:
       - "8010:8000"
@@ -11,6 +11,13 @@ services:
         condition: service_healthy
     env_file:
       - prod.env
+    networks:
+      - wishlist-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/metrics" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     logging:
       driver: "json-file"
       options:
@@ -27,8 +34,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    networks:
+      - wishlist-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
       interval: 5s
       timeout: 2s
       retries: 5
@@ -38,5 +47,100 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - wishlist-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+#      promtail:
+#        condition: service_healthy
+    networks:
+      - wishlist-network
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards
+      - grafana_storage:/var/lib/grafana
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  promtail:
+    image: grafana/promtail:2.9.4
+    container_name: promtail
+    volumes:
+      - /var/log:/var/log
+      - /etc/machine-id:/etc/machine-id
+      - ./monitoring/promtail-config.yaml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yml
+#    healthcheck:
+#      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:9080/metrics" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+    networks:
+      - wishlist-network
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - wishlist-network
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3100/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+
 volumes:
   postgres_data:
+  grafana_storage:
+  loki_storage:
+
+networks:
+  wishlist-network:
