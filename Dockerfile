@@ -12,6 +12,9 @@ WORKDIR /backend_app
 # Upgrade pip
 RUN pip install --upgrade pip
 
+# Установка curl
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Copy the requirements
 COPY requirements.txt  .
 

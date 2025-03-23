@@ -5,7 +5,7 @@ from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .serializers import RegistrationSerializer, UpdateUserSerializer, UserSerializer
+from users.serializers import RegistrationSerializer, UpdateUserSerializer, UserSerializer
 
 
 @permission_classes([AllowAny])
