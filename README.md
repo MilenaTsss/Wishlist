@@ -12,7 +12,7 @@
 
 ## Запуск локально
 
-Для запуска необходим файл переменных окружения. Все необходимые переменные можно найти в файле [.example.env](./example.env)
+Для запуска необходим файл переменных окружения. Все необходимые переменные можно найти в файле [example.env](./example.env)
 
 Продовый вариант:
 ```shell
@@ -110,7 +110,7 @@ LOGGING = {
 }
 ```
 
-Также настроены метрики Gunicorn в entrypoint.sh:
+Также настроены логи Gunicorn в [entrypoint.sh](./entrypoint.sh):
 
 ```shell
 gunicorn --bind 0.0.0.0:8000 Wishlist.wsgi:application \
@@ -131,7 +131,7 @@ logging:
 
 Логи собираются с помощью loki, promtail и открываются через grafana.
 
-Локально Graphana можно открыть на http://127.0.0.1:3000/ . Затем нужно ввести логин - admin, пароль - admin и приложение попросит вас сменить пароль на новый.
+Локально grafana можно открыть на http://127.0.0.1:3000/ . Затем нужно ввести логин - admin, пароль - admin и приложение попросит вас сменить пароль на новый.
 
 К сожалению на http://45.156.27.150:3000/ просмотреть графану не получится, т.к. для этого необходимо передавать новый пароль и это не безопасно.
 
@@ -201,31 +201,33 @@ services:
 
 Promtail настраивается с помощью [/monitoring/promtail-config.yaml](./monitoring/promtail-config.yaml).
 
-Добавление в графану loki как источника с помощью [/monitoring/graphana/provisoning/datasources/loki.yaml](./monitoring/graphana/provisoning/datasources/loki.yaml).
+Добавление в графану loki как источника с помощью [/monitoring/grafana/provisoning/datasources/loki.yaml](./monitoring/grafana/provisioning/datasources/loki.yaml).
 
-![Graphana Logs](images/graphana_logs.png)
+![grafana Logs](images/grafana_logs.png)
+
+Логи можно смотреть по каждому контейнеру, для этого сверху нужно выбрать фильтр filename (нужно выбрать идентификатор контейнера).
 
 ## Метрики
 
 Метрики сначала собираются с помощью библиотеки django_prometheus. Эта библиотека предоставляет уже некоторые готовые виды метрик и собирает их.
 
-Для интерфейса в докер добавляется prometheus и можно посмотреть метрики на сайте http://localhost:9090/. Сверху на странице есть Expression. В этот expression можно ввести `django_` и посмотреть много различных метрик, которые предоставляются в gjango. Например - `django_http_requests_latency_seconds_by_view_method_count`.
+Для интерфейса в докер добавляется prometheus и можно посмотреть метрики на сайте http://localhost:9090/ и http://45.156.27.150:9090/. Сверху на странице есть Expression. В этот expression можно ввести `django_` и посмотреть много различных метрик, которые предоставляются в django. Например - `django_http_requests_latency_seconds_by_view_method_count`.
 
 ![prometheus](images/prometheus.png)
 
 Для этого в docker добавляется prometheus. Есть файл с настройками prometheus -  [/monitoring/prometheus.yml](./monitoring/prometheus.yml).
 
-Graphana также добавляется в докер и используется как для логов, так и для метрик. 
+grafana также добавляется в докер и используется как для логов, так и для метрик. 
 
-![graphana metrics](images/graphana_metrics.png)
+![grafana metrics](images/grafana_metrics.png)
 
-Добавление в графану prometheus как источника данных с помощью [/monitoring/graphana/provisoning/datasources/datasource.yaml](./monitoring/graphana/provisoning/datasources/datasource.yaml).
+Добавление в графану prometheus как источника данных с помощью [/monitoring/grafana/provisioning/datasources/datasource.yml](./monitoring/grafana/provisioning/datasources/datasource.yml).
 
-Также создаются два дашборда по шаблонам специально для django - [/monitoring/graphana/provisoning/dashboards/](./monitoring/graphana/provisoning/dashboards/)
+Также создаются два дашборда по шаблонам специально для django - [/monitoring/grafana/provisioning/dashboards/](./monitoring/grafana/provisioning/dashboards/)
 
-![graphana dashboard 1](images/graphana_dashboard_1.png)
+![grafana dashboard 1](images/grafana_dashboard_1.png)
 
-![graphana dashboard 2](images/graphana_dashboard_2.png)
+![grafana dashboard 2](images/grafana_dashboard_2.png)
 
 ## Github Actions
 
@@ -365,11 +367,11 @@ with:
 
 Для каждого контейнера настраиваются логи с помощью logging. 
 
-`Promtail` -  агент сбора логов. Он читает логи из файлов (например, из Docker-контейнеров), структурирует их и отправляет в Loki. Работает аналогично как Filebeat в связке с Elasticsearch.
+`Promtail` -  агент сбора логов. Он читает логи из файлов (например, из Docker-контейнеров), структурирует их и отправляет в `Loki`. Работает аналогично как `Filebeat` в связке с `Elasticsearch`.
 
-`loki` - система централизованного хранения логов от Grafana. Принимает данные от Promtail и позволяет через Grafana искать и анализировать логи.
+`loki` - система централизованного хранения логов от `Grafana`. Принимает данные от `Promtail` и позволяет через `Grafana` искать и анализировать логи.
 
-Порядок запуска такой: db, backend, prometheus, loki, Promtail, grafana. Для обеспечения такого порядка запуска у каждого сервиса есть свой healthcheck.
+Порядок запуска такой: `db`, `backend`, `prometheus`, `loki`, `Promtail`, `grafana`. Для обеспечения такого порядка запуска у каждого сервиса есть свой healthcheck.
 
 ### Dockerfile
 
@@ -377,11 +379,11 @@ with:
 
 Dev запускается просто локально, перед этим сделав миграции - `python manage.py migrate`.
 
-На проде запускается скрипт `entrypoint.sh`. В этом скрипте - проверяется что мы не забыли создать файлы миграций - `python manage.py makemigrations --check --dry-run`.
+На проде запускается скрипт [entrypoint.sh](./entrypoint.sh). В этом скрипте - проверяется что мы не забыли создать файлы миграций - `python manage.py makemigrations --check --dry-run`.
 
 Затем так же как и в dev выполняется мигрирование в базу данных `python manage.py migrate`. Следующая команда `collectstatic` для того чтобы в контейнере были все нужные html файлы. Дальше создаём суперпользователя (для доступа в админку) - `User.objects.create_superuser`.
 
-И последнее - старт самого сервера с помощью gunicorn - `gunicorn --bind 0.0.0.0:8000 Wishlist.wsgi:application` с настройкой логирования. Gunicorn — это WSGI-сервер для Python-приложений. Он запускает Django в проде, обрабатывает HTTP-запросы и распределяет их между воркерами.
+И последнее - старт самого сервера с помощью gunicorn - `gunicorn --bind 0.0.0.0:8000 Wishlist.wsgi:application` с настройкой логирования. `Gunicorn` — это `WSGI`-сервер для Python-приложений. Он запускает `Django` в проде, обрабатывает HTTP-запросы и распределяет их между воркерами.
 
 
 # Структура проекта
